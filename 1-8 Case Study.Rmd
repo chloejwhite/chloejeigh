@@ -1,0 +1,127 @@
+---
+title: "Predicting in Retail Clothing"
+author: "Chloe White"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(Stat2Data)
+data("Clothing")
+attach(Clothing)
+```
+
+### Exercise 1
+
+Insert any text here.
+
+```{r 1}
+Clothing2 <- subset(Clothing, Amount != 0 & Amount != 1506000)
+mean(Clothing2$Amount)
+mean(Clothing2$Dollar12)
+```
+
+### Exercise 2
+
+Amount is positively associated with every variable except for Recency. 
+
+```{r 2}
+pairs(Clothing2[,2:7])
+cor(Clothing2[,2:7])
+library(corrplot)
+cor(Clothing2[,2:7]) |> corrplot(method="circle")
+```
+
+### Exercise 3
+
+Insert any text here.
+
+```{r 3}
+model1 <- lm(Amount ~ Dollar12, data = Clothing2)
+summary(model1)
+plot(Amount ~ Dollar12, data = Clothing2)
+abline(model1, col="Blue", lwd=2)
+model2 <- lm(Amount ~ Dollar12 + Dollar24 + Recency, data = Clothing2)
+summary(model2)
+```
+
+### Exercise 4
+
+Insert any text here.
+
+```{r 4}
+model3 <- lm(Amount ~ Dollar12 + Freq12 + Dollar24 + Freq24 + Recency + Card, data = Clothing2)
+summary(model3)
+anova(model1, model3)
+```
+### Exercise 5
+
+Insert any text here.
+
+```{r 5}
+model4 <- lm(Amount ~ Dollar12 + Freq12, data = Clothing2)
+summary(model4)
+```
+
+### Exercise 6
+
+The P-value is 2.78x10^-13. This indicates that model4 provides better predictions than model1.
+
+```{r 6}
+anova(model1, model4)
+```
+
+### Exercise 7
+
+I would pick model 4 because it had a smaller p-value. In exercise 6 we saw that model 4 was better than model 1 when looking at the p-value. In this exercise model 3 had a higher p-value when comparing it to model4. That is why I would pick model4. 
+
+```{r 7}
+anova(model4, model3)
+```
+
+### Exercise 8
+
+Insert any text here.
+
+```{r 8}
+Clothing2$AvgSpent12 <- Clothing2$Dollar12/Clothing2$Freq12
+model5 <- lm(Amount ~ AvgSpent12, data = Clothing2)
+summary(model5)
+```
+
+### Exercise 9
+
+Insert any text here.
+
+```{r 9}
+library(ggplot2)
+qplot(fitted(model5), resid(model5), geom=c("point", "smooth"))
+```
+
+### Exercise 10
+
+Insert any text here.
+
+```{r 10}
+Clothing2$AvgSpent12Sq <- Clothing2$AvgSpent12^2
+model6 <-lm(Amount ~ AvgSpent12 + AvgSpent12Sq, data = Clothing2)
+summary(model6)
+library(ggplot2)
+qplot(fitted(model6), resid(model6), geom=c("point", "smooth"))
+plot(fitted(model6), resid(model6))
+abline(h=0, col = "blue")
+```
+
+### Exercise 11
+
+Insert any text here.
+
+```{r 11}
+plot(Amount ~ AvgSpent12, data = Clothing2)
+curve(coef(model6)[1] + coef(model6)[2]*x + coef(model6)[3]*x^2, col="blue", lwd=2, add=T)
+```
+
+...
+
